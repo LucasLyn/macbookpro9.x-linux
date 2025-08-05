@@ -14,21 +14,21 @@ General resources common between both models. The relevant Arch Wiki for these m
 
 The Arch install ISO defaults the keyboard layout to `us`. This can be relatively easily changed with the `loadkeys` command:
 
-    `$ loadkeys dk-latin1`
+    $ loadkeys dk-latin1
 
 This loads the `nodeadkeys` version of a Danish keyboard (for information about "dead keys" see [here](https://en.wikipedia.org/wiki/Dead_key)).
 However, most, if not all regular `xx` or `xx-latin1` language keymaps does not follow a Mac layout, and thus causes issue.
 To get a list of keymaps that might work out of the box for you, you can list all keymaps with the `localectl` command:
 
-    `$ localectl list-keymaps`
+    $ localectl list-keymaps
 
 Load the relevant keymap with the `loadkeys` command:
 
-    `$ loadkeys mac-dk-latin1`
+    $ loadkeys mac-dk-latin1
 
 **NOTE:** `mac-dk-latin1` is currently broken, and messes up the keyboard completely.
 This has been discussed [here](https://bbs.archlinux.org/viewtopic.php?id=156453) with no solution yet.
-I have made a solution, but it requires being on an actual installation, and *not* in the install ISO (solution discussed [here](TODO)).
+I have made a solution, but it requires being on an actual installation, and *not* in the install ISO (solutions are discussed later for [graphical sessions](#keyboard-layout-fix-graphical-session) and [tty](#keyboard-layout-fix-tty)).
 During the install, I recommend finding a similar enough layout that can get you through the installation.
 In my case, the Norweigan keyboard layout `mac-no-latin1` was similar enough.
 
@@ -36,22 +36,22 @@ Another issue during installation is internet connectivity.
 Ethernet works without issue, but the Wi-Fi most likely does not.
 To quickly test, launch [`iwctl`](https://wiki.archlinux.org/title/Iwd#iwctl):
 
-    `$ iwctl`
+    $ iwctl
 
 In the interactive prompt, type:
 
-    `$ device list`
+    $ device list
 
 If nothing shows up, you can try unloading and reloading some modules, as mentioned on the [MacBookPro9,x page](https://wiki.archlinux.org/title/MacBookPro9,x#Installation):
 
-    `$ rmmod b43 bcma ssb wl`
-    `$ modprobe wl`
+    $ rmmod b43 bcma ssb wl
+    $ modprobe wl
 
 You can go back and retry the `iwctl` steps and see if it shows up in the device list now.
 If it still does not show up, you can try switching the state back to `up`:
 
-    `$ ip link set wlan0 down`
-    `$ ip link set wlan0 up`
+    $ ip link set wlan0 down
+    $ ip link set wlan0 up
 
 If this still does not make the device show up, you might have to rely on Ethernet throughout the installation.
 In my case, I got the device to show up the first time I unloaded and reloaded the modules, but failed to get this result again in ~6 attempts afterwards.
@@ -64,11 +64,13 @@ Once booted in the new installation, install the proper driver for the wireless 
 The wireless chip should be the same between the 13-inch and 15-inch models, if it has not been [upgraded](https://www.intriguingindustries.co.uk/product/12-6-adapter/).
 The stock chips for both models should be `BCM4331`. You can double check with the following command:
 
-    `$ lspci -vnn -d 14e4:`
+    $ lspci -vnn -d 14e4:
 
 If the wireless chip model number indeed is `BCM4331`, it should work simply by installing `broadcom-wl` or `broadcom-wl-dkms`:
 
-    `sudo pacman -S broadcom-wl-dkms`
+    sudo pacman -S broadcom-wl-dkms
+
+If your Wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`broadcom-wl-dkms` *should* still work. If not, you can try one of the [different dirvers](https://wiki.archlinux.org/title/Broadcom_wireless#Driver_selection).
 
 
 ### broadcom-wl-dkms
@@ -98,21 +100,25 @@ However, this is only true for graphical sessions, such as a `hyprland` session.
 Conveniently it is possible to compile an a keymap based on these XKB values.
 To do this the [ckbcomp package](https://aur.archlinux.org/packages/ckbcomp) (AUR) needs to be installed with your AUR helper of choice ([yay](https://github.com/Jguer/yay) in my case):
 
-    `$ yay -S ckbcomp`
+    $ yay -S ckbcomp
 
 After installing, a keymap file can be compiled and packed with `gzip`:
 
-    `$ ckbcomp -compact -layout dk -variant mac -option lvl3:ralt_switch | gzip > mac_dk.map.gz`
+    $ ckbcomp -compact -layout dk -variant mac -option lvl3:ralt_switch | gzip > mac_dk.map.gz
 
 For the newly created `mac_dk.map.gz` keymap file to be easily loadable with `loadkeys`, it should be moved to a relavant folder in `/usr/share/kbd/keymaps/`:
 
-    `$ sudo mv mac_dk.map.gz /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz`
+    $ sudo mv mac_dk.map.gz /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz
+
+The newly compiled keymap can be checked for issues with `loadkeys`:
+
+    $ loadkeys /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz
 
 For the changes to be persistent after a reboot, the `KEYMAP` variable can be changed in `/etc/vconsole.conf`:
 
     KEYMAP=mac_dk.map.gz
 
-You can now freely reboot your MacBook and load into a tty to see the changed.
+You can now freely reboot your MacBook and load into a tty to see the effects.
 
 
 # MacBookPro9,1 (15-inch)

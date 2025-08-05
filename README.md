@@ -78,7 +78,13 @@ If your Wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`br
 TODO: Setup instructions
 
 
-## Keyboard layout fix (graphical session)
+## Keyboard
+
+The keyboard especially can have a few issues, even moreso if you use a somewhat niche layout.
+The Arch wiki page for Apple Keyboards can be found [here](https://wiki.archlinux.org/title/Apple_Keyboard).
+
+
+### Keyboard layout fix (graphical session)
 
 Most graphical environments use the [X11 Keyboard Extension/XKB](https://www.x.org/releases/current/doc/xorg-docs/input/XKB-Config.html).
 If you had problems with the keyboard layout, define the proper proper parameters using your preferred XKB configuration method.
@@ -94,7 +100,7 @@ This makes the keyboad use the Mac variant of the Danish layout, while mapping R
 This makes it possible to type special characters such as square brackets, curly braces, etc. by holding down Right Alt and pressing the corresponding key.
 
 
-## Keyboard layout fix (tty)
+### Keyboard layout fix (tty)
 
 However, this is only true for graphical sessions, such as a `hyprland` session. A proper keymap file still need to exist to load a similar layout in a tty.
 Conveniently it is possible to compile an a keymap based on these XKB values.
@@ -110,7 +116,7 @@ For the newly created `mac_dk.map.gz` keymap file to be easily loadable with `lo
 
     $ sudo mv mac_dk.map.gz /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz
 
-The newly compiled keymap can be checked for issues with `loadkeys`:
+The newly compiled keymap can be checked for issues by loading the keymap with `loadkeys`:
 
     $ loadkeys /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz
 
@@ -119,6 +125,61 @@ For the changes to be persistent after a reboot, the `KEYMAP` variable can be ch
     KEYMAP=mac_dk.map.gz
 
 You can now freely reboot your MacBook and load into a tty to see the effects.
+
+
+### Restoring FN functionality
+
+Many of the function keys such as screen brightness, keyboard backlight, etc. will not work out of the box.
+In my case, only the **Mute**, **Lower Volume**, and **Increase Volume** buttons worked out of the box.
+If they do not, it might be required to install an audio library, such as `pipewire`:
+
+    $ sudo pacman -S pipewire
+
+For the screen brightness and keyboard backlight, it is required to install `brightnessctl`:
+
+    $ sudo pacman -S brightnessctl
+
+For the **Pause/Play**, **Previous**, and **Next** buttons to work, `playerctl` must be installed:
+
+    $ sudo pacman -S playerctl
+
+With the dependencies installed, it might be required to configure keybinds in the settings of your graphical session.
+In my case for `hyprland`, I have the following keybinds set:
+    
+    # Audio
+    bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT\_AUDIO\_SINK@ 5%+
+    bindel = ,XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT\_AUDIO\_SINK@ 5%-
+    bindel = ,XF86AudioMute, exec, wpctl set-mute @DEFAULT\_AUDIO\_SINK@ toggle
+    # Screen brightness
+    bindel = ,XF86MonBrightnessUp, exec, brightnessctl -e4 -n2 set 5%+
+    bindel = ,XF86MonBrightnessDown, exec, brightnessctl -e4 -n2 set 5%-
+    # Player buttons
+    bindl = , XF86AudioNext, exec, playerctl next
+    bindl = , XF86AudioPause, exec, playerctl play-pause
+    bindl = , XF86AudioPlay, exec, playerctl play-pause
+    bindl = , XF86AudioPrev, exec, playerctl previous
+    # Keyboard brightness
+    # TODO
+
+Since **Mission Control** (Fn+F3) and **Launchpad** (Fn+F4) are not commonly used features, you can probably rebind them to other functionality like done above.
+In my case I have them configured as such:
+
+    # TODO
+
+
+### Changing `Fn` mode
+
+There's 2 (relevant) `Fn` modes that exists for the [`hid_apple` module](https://wiki.archlinux.org/title/Apple_Keyboard#hid_apple_module_options).
+Out of the box, the value is `3` (`auto`) which defaults to mode `1`, which is `Fn` keys being **media keys**, which switch to **function keys** while `Fn` is held down.
+The other mode (`2`) reverses this: mainly **function keys**, switchable to **media keys** while `Fn` is held down.
+To change this permanently, at the following line in `/etc/modprobe.d/hid_apple.conf`:
+
+    options hid_apple fnmode=2
+
+Make sure to have `modconf` included in the `HOOKS` variable in your **mkinitcpio configuration** (`/etc/mkinitcpio.conf`).
+Also remember to regenerate the **initramfs** by running the followng:
+
+    $ sudo mkinicpio -P
 
 
 # MacBookPro9,1 (15-inch)

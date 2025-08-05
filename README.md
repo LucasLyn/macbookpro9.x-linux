@@ -103,7 +103,7 @@ This makes it possible to type special characters such as square brackets, curly
 ### Keyboard layout fix (tty)
 
 However, this is only true for graphical sessions, such as a `hyprland` session. A proper keymap file still need to exist to load a similar layout in a tty.
-Conveniently it is possible to compile an a keymap based on these XKB values.
+Conveniently it is [possible to compile a keymap based on these XKB values](https://bbs.archlinux.org/viewtopic.php?pid=2202009#p2202009).
 To do this the [ckbcomp package](https://aur.archlinux.org/packages/ckbcomp) (AUR) needs to be installed with your AUR helper of choice ([yay](https://github.com/Jguer/yay) in my case):
 
     $ yay -S ckbcomp

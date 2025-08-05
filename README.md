@@ -7,7 +7,7 @@ These are also known by the model identifiers [MacBookPro9,1](https://everymac.c
 
 # General
 
-General resources common between both models. The relevant Arch Wiki for these models can be found [here](https://wiki.archlinux.org/title/MacBookPro9,x).
+General resources common between both models. The relevant Arch Wiki page for these models can be found [here](https://wiki.archlinux.org/title/MacBookPro9,x).
 
 
 ## Installation
@@ -16,9 +16,9 @@ The Arch install ISO defaults the keyboard layout to `us`. This can be relativel
 
     $ loadkeys dk-latin1
 
-This loads the `nodeadkeys` version of a Danish keyboard (for information about "dead keys" see [here](https://en.wikipedia.org/wiki/Dead_key)).
-However, most, if not all regular `xx` or `xx-latin1` language keymaps does not follow a Mac layout, and thus causes issue.
-To get a list of keymaps that might work out of the box for you, you can list all keymaps with the `localectl` command:
+This loads the `latin1` (aka `nodeadkeys`) version of a Danish keyboard (for information about "dead keys" see [here](https://en.wikipedia.org/wiki/Dead_key)).
+However, most, if not all regular `xx` or `xx-latin1` language keymaps does not follow a Mac layout, and thus causes issues.
+To get a full list of keymaps in the installation ISO that might work out of the box for you, you can list all keymaps with the `localectl` command:
 
     $ localectl list-keymaps
 
@@ -33,7 +33,7 @@ During the install, I recommend finding a similar enough layout that can get you
 In my case, the Norweigan keyboard layout `mac-no-latin1` was similar enough.
 
 Another issue during installation is internet connectivity.
-Ethernet works without issue, but the Wi-Fi most likely does not.
+Ethernet works without issue, but Wi-Fi most likely does not.
 To quickly test, launch [`iwctl`](https://wiki.archlinux.org/title/Iwd#iwctl):
 
     $ iwctl
@@ -54,13 +54,13 @@ If it still does not show up, you can try switching the state back to `up`:
     $ ip link set wlan0 up
 
 If this still does not make the device show up, you might have to rely on Ethernet throughout the installation.
-In my case, I got the device to show up the first time I unloaded and reloaded the modules, but failed to get this result again in ~6 attempts afterwards.
-I restorted to Ethernet throughout the installation.
+In my case, I got the device to show up the first time I unloaded and reloaded the modules, but failed to get this result again after ~6 attempts.
+I thus restorted to Ethernet throughout the installation.
 
 
 ## Wireless
 
-Once booted in the new installation, install the proper driver for the wireless chip.
+Once booted into the new installation, install the proper driver for the wireless chip.
 The wireless chip should be the same between the 13-inch and 15-inch models, if it has not been [upgraded](https://www.intriguingindustries.co.uk/product/12-6-adapter/).
 The stock chips for both models should be `BCM4331`. You can double check with the following command:
 
@@ -70,24 +70,31 @@ If the wireless chip model number indeed is `BCM4331`, it should work simply by 
 
     sudo pacman -S broadcom-wl-dkms
 
+It is recommended to use `broadcom-wl-dkms` as you do not need to reinstall it after a kernal update. See [Setup `broadcom-wl-dkms`](#setup-broadkom-wl-dkms) for details.
 If your Wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`broadcom-wl-dkms` *should* still work. If not, you can try one of the [different dirvers](https://wiki.archlinux.org/title/Broadcom_wireless#Driver_selection).
 
 
-### broadcom-wl-dkms
+### Setup `broadcom-wl-dkms`
 
 TODO: Setup instructions
 
 
 ## Keyboard
 
-The keyboard especially can have a few issues, even moreso if you use a somewhat niche layout.
-The Arch wiki page for Apple Keyboards can be found [here](https://wiki.archlinux.org/title/Apple_Keyboard).
+The keyboard especially can have a few issues, even more so if you use a somewhat niche layout.
+The Arch Wiki page for Apple Keyboards can be found [here](https://wiki.archlinux.org/title/Apple_Keyboard).
 
 
 ### Keyboard layout fix (graphical session)
 
 Most graphical environments use the [X11 Keyboard Extension/XKB](https://www.x.org/releases/current/doc/xorg-docs/input/XKB-Config.html).
-If you had problems with the keyboard layout, define the proper proper parameters using your preferred XKB configuration method.
+If you had problems with the keyboard layout, define the proper parameters using your preferred XKB configuration method.
+The available XKB values can be listed with the following commands:
+
+    $ localectl list-x11-keymap-layouts
+    $ localectl list-x11-keymap-variants
+    $ localectl list-x11-keymap-options
+
 For `hyprland`, it can be achieved by setting the `kb_layout`, `kb_variant`, and `kb_options` [input variables](https://wiki.hypr.land/Configuring/Variables/#input):
 
     input {
@@ -171,8 +178,8 @@ In my case I have them configured as such:
 
 There's 2 (relevant) `Fn` modes that exists for the [`hid_apple` module](https://wiki.archlinux.org/title/Apple_Keyboard#hid_apple_module_options).
 Out of the box, the value is `3` (`auto`) which defaults to mode `1`, which is `Fn` keys being **media keys**, which switch to **function keys** while `Fn` is held down.
-The other mode (`2`) reverses this: mainly **function keys**, switchable to **media keys** while `Fn` is held down.
-To change this permanently, at the following line in `/etc/modprobe.d/hid_apple.conf`:
+The other mode (`2`) reverses this: **function keys**, switchable to **media keys** while `Fn` is held down.
+To change this permanently, add the following line in `/etc/modprobe.d/hid_apple.conf`:
 
     options hid_apple fnmode=2
 
@@ -180,6 +187,8 @@ Make sure to have `modconf` included in the `HOOKS` variable in your **mkinitcpi
 Also remember to regenerate the **initramfs** by running the followng:
 
     $ sudo mkinicpio -P
+
+Reboot for the changes to take effect.
 
 
 # MacBookPro9,1 (15-inch)

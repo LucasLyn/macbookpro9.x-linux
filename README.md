@@ -157,21 +157,21 @@ To find the names of the buttons yourself, you can install ´xorg-xev´ and look
 
 The full list of function keys are:
 
-| Key name | Key number | XF86 key name | Keycode |
-| --- | --- | --- | --- |
-| Decrease Screen Brightness | F1 | `XF86MonBrightnessDown` | `232` |
-| Increase Screen Brightness | F2 | `XF86MonBrightnessUp` | `233` |
-| Mission Control | F3 | `XF86LaunchA` | `128` |
-| Launchpad | F4 | `XF86LaunchB` | `212` |
-| Decrease Keyboard Brightness | F5 | `XF86KbdBrightnessDown` | `237` |
-| Increase Keyboard Brightness | F6 | `XF86KbdBrightnessUp` | `238` |
-| Previous | F7 | `XF86AudioPrev` | `173` |
-| Play/Pause | F8 | `XF86AudioPlay` | `172` |
-| Next | F9 | `XF86AudioNext` | `171` |
-| Mute/Unmute | F10 | `XF86AudioMute` | `121` |
-| Decrease Volume | F11 | `XF86AudioLowerVolume` | `122` |
-| Increase Volume | F12 | `XF86AudioRaiseVolume` | `123` |
-| Eject | N/A | `XF86Eject` | `169` |
+| Key name | Key number | XF86 key name | Keycode | acpid event |
+| --- | --- | --- | --- | --- |
+| Decrease Screen Brightness | F1 | `XF86MonBrightnessDown` | `232` | video/brightnessdown |
+| Increase Screen Brightness | F2 | `XF86MonBrightnessUp` | `233` | video/brightnessup |
+| Mission Control | F3 | `XF86LaunchA` | `128` | N/A |
+| Launchpad | F4 | `XF86LaunchB` | `212` | N/A |
+| Decrease Keyboard Brightness | F5 | `XF86KbdBrightnessDown` | `237` | button/kbdillumdown |
+| Increase Keyboard Brightness | F6 | `XF86KbdBrightnessUp` | `238` | button/kbdillumup |
+| Previous | F7 | `XF86AudioPrev` | `173` | cd/prev |
+| Play/Pause | F8 | `XF86AudioPlay` | `172` | cd/play |
+| Next | F9 | `XF86AudioNext` | `171` | cd/next |
+| Mute/Unmute | F10 | `XF86AudioMute` | `121` | button/mute |
+| Decrease Volume | F11 | `XF86AudioLowerVolume` | `122` | button/volumedown |
+| Increase Volume | F12 | `XF86AudioRaiseVolume` | `123` | button/volumeup |
+| Eject | N/A | `XF86Eject` | `169` | cd/eject |
 
 In my case for `hyprland`, I have the following keybinds set:
     
@@ -189,6 +189,42 @@ In my case for `hyprland`, I have the following keybinds set:
     bindl = , XF86AudioPrev, exec, playerctl previous
     # Keyboard brightness
     # TODO
+
+Theoretically, it *should* be possible to execute commands in a tty session by [adding custom keycode directives](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration#Adding_directives) in the keymap file generated with `ckbcomp`, however, I have been unable to get this to work properly.
+I have thus resorted to using `acpid` which listens and acts on certain events:
+
+    $ sudo pacman -S acpid
+
+Enable the daemon before configuring:
+
+    $ sudo systemctl enable --now acpid.service
+
+You can now launch the listener to see which keys correspond to what events:
+
+    $ acpi_listen
+
+And press the function keys.
+A full overview of the events are present in the table above under the **acpid event** column.
+You can create files that handle the events. E.g. in the file `/etc/acpi/events/screen-brightness-down` you can put the following:
+
+    event=video/brightnessdown
+    action=/etc/acpi/screen-brightness-down.sh
+
+Then, in `/etc/acpi/screen-brightness-down.sh` write:
+
+    $ brightnessctl -q -e4 -n2 set 5%-
+
+Remember to include a check to see if the script is being run in a graphical session and do nothing if so, if you want the graphical session such as `hyprland` to handle the event.
+Remember to make the script executable and restart `acpid.service` afterwards:
+
+    $ sudo chmod /etc/acpi/scren-brightness-down.sh
+    $ sudo systemctl restart --now acpid.service
+
+The function buttons should now work in the tty.
+**NOTE:** **Missin Control** and **Launchpad** doesn't have any `acpid` events, and as such are unusable in a tty.
+
+>[!TIP]
+> If you want to ensure the graphical session and tty both use the same command upon a function key press, you can create a single script somehwere and symlink it to both `acpid` and your graphical session scripts. 
 
 
 ### Changing `Fn` mode

@@ -70,13 +70,11 @@ If the wireless chip model number indeed is `BCM4331`, it should work simply by 
 
     sudo pacman -S broadcom-wl-dkms
 
-It is recommended to use `broadcom-wl-dkms` as you do not need to reinstall it after a kernal update. See [Setup `broadcom-wl-dkms`](#setup-broadkom-wl-dkms) for details.
+It is recommended to use `broadcom-wl-dkms` as it's a [`dkms`](https://wiki.archlinux.org/title/Dynamic_Kernel_Module_Support) package, meaning you do not need to reinstall it after a kernal update.
 If your Wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`broadcom-wl-dkms` *should* still work. If not, you can try one of the [different dirvers](https://wiki.archlinux.org/title/Broadcom_wireless#Driver_selection).
+To setup `broadcom-wl-dkms`, you simply need to install the `dkms` framework itself, along with any relevant `linux-headers` that match your `linux` kernel(s) (e.g. install `linux-zen-headers` if you use `linux-zen`):
 
-
-### Setup `broadcom-wl-dkms`
-
-TODO: Setup instructions
+    $ sudo pacman -S dkms linux-headers broadcom-wl-dkms
 
 
 ## Keyboard

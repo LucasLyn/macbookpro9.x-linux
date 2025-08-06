@@ -148,7 +148,31 @@ For the **Pause/Play**, **Previous**, and **Next** buttons to work, `playerctl` 
 
     $ sudo pacman -S playerctl
 
-With the dependencies installed, it might be required to configure keybinds in the settings of your graphical session.
+With the dependencies installed, it might be required to configure keybinds in the settings of your graphical session, if they don't work out of box.
+The function keys have some special key codes that are prefixed with `XF86`, such as `XF86AudioMute` for the Audo Mute (F10) key.
+To find the names of the buttons yourself, you can install ´xorg-xev´ and look at the output in real time:
+
+    $ sudo pacman -S xorg-xev
+    $ xev | grep XF86
+
+The full list of function keys are:
+
+| Key name | Key number | XF86 key name | Keycode |
+| --- | --- | --- | --- |
+| Decrease Screen Brightness | F1 | `XF86MonBrightnessDown` | `232` |
+| Increase Screen Brightness | F2 | `XF86MonBrightnessUp` | `233` |
+| Mission Control | F3 | `XF86LaunchA` | `128` |
+| Launchpad | F4 | `XF86LaunchB` | `212` |
+| Decrease Keyboard Brightness | F5 | `XF86KbdBrightnessDown` | `237` |
+| Increase Keyboard Brightness | F6 | `XF86KbdBrightnessUp` | `238` |
+| Previous | F7 | `XF86AudioPrev` | `173` |
+| Play/Pause | F8 | `XF86AudioPlay` | `172` |
+| Next | F9 | `XF86AudioNext` | `171` |
+| Mute/Unmute | F10 | `XF86AudioMute` | `121` |
+| Decrease Volume | F11 | `XF86AudioLowerVolume` | `122` |
+| Increase Volume | F12 | `XF86AudioRaiseVolume` | `123` |
+| Eject | N/A | `XF86Eject` | `169` |
+
 In my case for `hyprland`, I have the following keybinds set:
     
     # Audio
@@ -164,11 +188,6 @@ In my case for `hyprland`, I have the following keybinds set:
     bindl = , XF86AudioPlay, exec, playerctl play-pause
     bindl = , XF86AudioPrev, exec, playerctl previous
     # Keyboard brightness
-    # TODO
-
-Since **Mission Control** (Fn+F3) and **Launchpad** (Fn+F4) are not commonly used features, you can probably rebind them to other functionality like done above.
-In my case I have them configured as such:
-
     # TODO
 
 

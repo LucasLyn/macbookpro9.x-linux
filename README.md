@@ -217,7 +217,7 @@ Then, in `/etc/acpi/screen-brightness-down.sh` write:
 Remember to include a check to see if the script is being run in a graphical session and do nothing if so, if you want the graphical session such as `hyprland` to handle the event.
 Remember to make the script executable and restart `acpid.service` afterwards:
 
-    $ sudo chmod /etc/acpi/scren-brightness-down.sh
+    $ sudo chmod +x /etc/acpi/scren-brightness-down.sh
     $ sudo systemctl restart --now acpid.service
 
 The function buttons should now work in the tty.

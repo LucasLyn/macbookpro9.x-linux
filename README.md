@@ -26,8 +26,9 @@ Load the relevant keymap with the `loadkeys` command:
 
     $ loadkeys mac-dk-latin1
 
-**NOTE:** `mac-dk-latin1` is currently broken, and messes up the keyboard completely.
-This has been discussed [here](https://bbs.archlinux.org/viewtopic.php?id=156453) with no solution yet.
+>[!NOTE]
+>`mac-dk-latin1` is currently broken, and messes up the keyboard completely. This has been discussed [here](https://bbs.archlinux.org/viewtopic.php?id=156453) with no solution yet.
+
 I have made a solution, but it requires being on an actual installation, and *not* in the install ISO (solutions are discussed later for [graphical sessions](#keyboard-layout-fix-graphical-session) and [tty](#keyboard-layout-fix-tty)).
 During the install, I recommend finding a similar enough layout that can get you through the installation.
 In my case, the Norweigan keyboard layout `mac-no-latin1` was similar enough.
@@ -70,11 +71,11 @@ If the wireless chip model number indeed is `BCM4331`, it should work simply by 
 
     sudo pacman -S broadcom-wl-dkms
 
-It is recommended to use `broadcom-wl-dkms` as it's a [`dkms`](https://wiki.archlinux.org/title/Dynamic_Kernel_Module_Support) package, meaning you do not need to reinstall it after a kernal update.
-If your Wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`broadcom-wl-dkms` *should* still work. If not, you can try one of the [different dirvers](https://wiki.archlinux.org/title/Broadcom_wireless#Driver_selection).
-To setup `broadcom-wl-dkms`, you simply need to install the `dkms` framework itself, along with any relevant `linux-headers` that match your `linux` kernel(s) (e.g. install `linux-zen-headers` if you use `linux-zen`):
+>[!TIP]
+> It is recommended to use `broadcom-wl-dkms` as it's a [`dkms`](https://wiki.archlinux.org/title/Dynamic_Kernel_Module_Support) package, meaning you do not need to reinstall it after a kernal update.
+> Remember to install `dkms`, and any relevant `linux-headers` for the kernels you're using.
 
-    $ sudo pacman -S dkms linux-headers broadcom-wl-dkms
+If your wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`broadcom-wl-dkms` *should* still work. If not, you can try one of the [different dirvers](https://wiki.archlinux.org/title/Broadcom_wireless#Driver_selection).
 
 
 ## Keyboard
@@ -121,11 +122,10 @@ For the newly created `mac_dk.map.gz` keymap file to be easily loadable with `lo
 
     $ sudo mv mac_dk.map.gz /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz
 
-The newly compiled keymap can be checked for issues by loading the keymap with `loadkeys`:
+>[!TIP]
+>You can check the keymap for any glaring issues before you apply it at boot, simply by using `loadkeys` with the file path.
 
-    $ loadkeys /usr/share/kbd/keymaps/mac/all/mac_dk.map.gz
-
-For the changes to be persistent after a reboot, the `KEYMAP` variable can be changed in `/etc/vconsole.conf`:
+To apply the keymap automatically after a reboot, change the `KEYMAP` variable in `/etc/vconsole.conf`:
 
     KEYMAP=mac_dk.map.gz
 
@@ -148,8 +148,8 @@ For the **Pause/Play**, **Previous**, and **Next** buttons to work, `playerctl` 
 
     $ sudo pacman -S playerctl
 
-With the dependencies installed, it might be required to configure keybinds in the settings of your graphical session, if they don't work out of box.
-The function keys have some special key codes that are prefixed with `XF86`, such as `XF86AudioMute` for the Audo Mute (F10) key.
+With the dependencies installed, it might be required to configure keybinds in the settings of your graphical session, if they don't work straight away.
+The function keys have some special keycodes that are prefixed with `XF86`, such as `XF86AudioMute` for the Audio Mute (F10) key.
 To find the names of the buttons yourself, you can install ´xorg-xev´ and look at the output in real time:
 
     $ sudo pacman -S xorg-xev
@@ -190,8 +190,10 @@ In my case for `hyprland`, I have the following keybinds set:
     # Keyboard brightness
     # TODO
 
-Theoretically, it *should* be possible to execute commands in a tty session by [adding custom keycode directives](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration#Adding_directives) in the keymap file generated with `ckbcomp`, however, I have been unable to get this to work properly.
-I have thus resorted to using `acpid` which listens and acts on certain events:
+>[!NOTE]
+>Theoretically, it *should* be possible to execute commands in a tty session by [adding custom keycode directives](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration#Adding_directives) in the keymap file generated with `ckbcomp`, however, I have been unable to get this to work properly.
+
+To get the function keys to work in a tty as well, you can install `acpid` which listens to, and acts on certain events:
 
     $ sudo pacman -S acpid
 
@@ -204,7 +206,7 @@ You can now launch the listener to see which keys correspond to what events:
     $ acpi_listen
 
 And press the function keys.
-A full overview of the events are present in the table above under the **acpid event** column.
+A full overview of the events are present in the table above in the **acpid event** column.
 You can create files that handle the events. E.g. in the file `/etc/acpi/events/screen-brightness-down` you can put the following:
 
     event=video/brightnessdown
@@ -214,14 +216,18 @@ Then, in `/etc/acpi/screen-brightness-down.sh` write:
 
     $ brightnessctl -q -e4 -n2 set 5%-
 
-Remember to include a check to see if the script is being run in a graphical session and do nothing if so, if you want the graphical session such as `hyprland` to handle the event.
+>[!TIP]
+>Remember to include a check to see if the script is being run in a graphical session and do nothing if so, otherwise you can trigger the event twice, once for your graphical session and once for `acpid`.
+
 Remember to make the script executable and restart `acpid.service` afterwards:
 
     $ sudo chmod +x /etc/acpi/scren-brightness-down.sh
     $ sudo systemctl restart --now acpid.service
 
 The function buttons should now work in the tty.
-**NOTE:** **Missin Control** and **Launchpad** doesn't have any `acpid` events, and as such are unusable in a tty.
+
+>[!NOTE]
+>**Missin Control** and **Launchpad** doesn't have any `acpid` events, and as such are unusable in a tty.
 
 >[!TIP]
 > If you want to ensure the graphical session and tty both use the same command upon a function key press, you can create a single script somehwere and symlink it to both `acpid` and your graphical session scripts. 

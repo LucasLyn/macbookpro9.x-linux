@@ -78,6 +78,33 @@ If the wireless chip model number indeed is `BCM4331`, it should work simply by 
 If your wireless chip model name is *NOT* listed as `BCM4331`, `broadcom-wl`/`broadcom-wl-dkms` *should* still work. If not, you can try one of the [different dirvers](https://wiki.archlinux.org/title/Broadcom_wireless#Driver_selection).
 
 
+## 8x SuperDrive
+
+The SuperDrive supports CD and DVD playback.
+It will automatically take in a disc if ypu push it in, however to eject it again, you will need to use the `eject` command:
+
+    $ eject
+
+>[!TIP]
+>Unless your graphical session supports it out of the box, you will need to bind your eject button for it to work.
+>You can bind `XF86Eject` to execute `eject` as discussed in [Restoring FN functionality](#restoring-fn-functionality)
+
+In order to play DVDs and CDs, you will need to install some additional packages.
+For CDs, you will need the `libcdio` package:
+
+    $ sudo pacman -S libcdio
+
+For DVDs, you will need the `libdvd*` packages:
+
+    $ sudo pacman -S libdvdread libdvdcss libdvdnav
+
+You will also need an actual [player](https://wiki.archlinux.org/title/List_of_applications/Multimedia#Video_players) such as `vlc` (VLC needs `vlc-plugin-cddb` as well for CD playback):
+
+    $ sudo pacman -S libdvdcss vlc-plugin-cddb vlc
+
+If the SuperDrive has been [upgraded to support Blu-Ray discs](https://apple.stackexchange.com/a/79755), other packages may be needed. See [here](https://wiki.archlinux.org/title/Blu-ray) for details.
+
+
 ## Keyboard
 
 The keyboard especially can have a few issues, even more so if you use a somewhat niche layout.
@@ -193,7 +220,7 @@ In my case for `hyprland`, I have the following keybinds set:
 >[!NOTE]
 >Theoretically, it *should* be possible to execute commands in a tty session by [adding custom keycode directives](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration#Adding_directives) in the keymap file generated with `ckbcomp`, however, I have been unable to get this to work properly.
 
-To get the function keys to work in a tty as well, you can install `acpid` which listens to, and acts on certain events:
+To get the function keys to work in a tty as well, you can install `acpid` which listens and acts on certain events:
 
     $ sudo pacman -S acpid
 

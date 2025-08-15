@@ -10,7 +10,9 @@ echo "Handling event: ${EVENT}"
 
 case $EVENT in
 	video/brightnessdown)
-		source "${SCRIPTS_DIR}/testdown.sh";;
+		source "${SCRIPTS_DIR}/MonBrightnessDown.sh";;
+	video/brightnessup)
+		source "${SCRIPTS_DIR}/MonBrightnessUp.sh";;
 	*)
 		echo "No behavior defined for event: ${EVENT}"
 		exit 1

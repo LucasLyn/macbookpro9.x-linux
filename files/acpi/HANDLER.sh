@@ -29,6 +29,8 @@ case $EVENT in
 		source "${SCRIPTS_DIR}/AudioLowerVolume.sh";;
 	button/volumeup)
 		source "${SCRIPTS_DIR}/AudioRaiseVolume.sh";;
+	cd/eject)
+		source "${SCRIPTS_DIR}/Eject.sh";;
 	*)
 		echo "No behavior defined for event: ${EVENT}"
 		exit 1

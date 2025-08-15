@@ -17,6 +17,12 @@ case $EVENT in
 		source "${SCRIPTS_DIR}/KbdBrightnessDown.sh";;
 	button/kbdillumup)
 		source "${SCRIPTS_DIR}/KbdBrightnessUp.sh";;
+	cd/prev) # TODO: Check if these actually work in tty with mpd set up
+		source "${SCRIPTS_DIR}/AudioPrev.sh";;
+	cd/play)
+		source "${SCRIPTS_DIR}/AudioPlay.sh";;
+	cd/next)
+		source "${SCRIPTS_DIR}/AudioNext.sh";;
 	*)
 		echo "No behavior defined for event: ${EVENT}"
 		exit 1

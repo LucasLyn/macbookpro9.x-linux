@@ -23,6 +23,12 @@ case $EVENT in
 		source "${SCRIPTS_DIR}/AudioPlay.sh";;
 	cd/next)
 		source "${SCRIPTS_DIR}/AudioNext.sh";;
+	button/mute)
+		source "${SCRIPTS_DIR}/AudioMute.sh";;
+	button/volumedown)
+		source "${SCRIPTS_DIR}/AudioLowerVolume.sh";;
+	button/volumeup)
+		source "${SCRIPTS_DIR}/AudioRaiseVolume.sh";;
 	*)
 		echo "No behavior defined for event: ${EVENT}"
 		exit 1

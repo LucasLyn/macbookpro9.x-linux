@@ -13,6 +13,10 @@ case $EVENT in
 		source "${SCRIPTS_DIR}/MonBrightnessDown.sh";;
 	video/brightnessup)
 		source "${SCRIPTS_DIR}/MonBrightnessUp.sh";;
+	button/kbdillumdown)
+		source "${SCRIPTS_DIR}/KbdBrightnessDown.sh";;
+	button/kbdillumup)
+		source "${SCRIPTS_DIR}/KbdBrightnessUp.sh";;
 	*)
 		echo "No behavior defined for event: ${EVENT}"
 		exit 1
